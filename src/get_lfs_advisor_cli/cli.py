@@ -22,6 +22,11 @@ BINARY_EXTENSIONS = {
     # Other
     '.jar', '.bin', '.dat',
 }
+# Extensions for files that should always be treated as text, even if large or containing null bytes.
+TEXT_EXTENSIONS = {
+    '.c', '.h', '.cpp', '.hpp', '.cs', '.java', '.py', '.js', '.ts', '.html', '.css', '.json', '.xml', '.md', '.txt',
+    # Add other source code or text-based formats here
+}
 # --- End Configuration ---
 
 
@@ -86,6 +91,11 @@ def scan_repo_files(submodule_paths):
 def analyze_file(file_path):
     """Analyzes a single file and returns an LFS pattern if it matches criteria."""
     try:
+        _, ext = os.path.splitext(file_path)
+        # Explicitly ignore files that are designated as text files.
+        if ext.lower() in TEXT_EXTENSIONS:
+            return None
+
         normalized_path = str(pathlib.Path(file_path).as_posix())
         file_size = os.path.getsize(file_path)
         is_large = file_size > SIZE_LIMIT_BYTES
